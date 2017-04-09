@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Тестовое задание</title>
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+            }
+
+            body {
+                background: #efefef;
+            }
+
+            .circle {
+                background: #444;
+                position: absolute;
+                width: 40px;
+                height: 40px;
+                border-radius: 100px;
+            }
+
+            .circle-shadow {
+                background: #ddd;
+                position: absolute;
+                width: 40px;
+                height: 40px;
+                border-radius: 100px;
+            }
+
+            .transition {
+                transition: all .3s;
+            }
+
+        </style>
+    </head>
+    <body>
+        <script>
+            "use strict";
+            // Оптимизируйте и приведите код в порядок
+
+            var DomHelper = (function () {
+
+                var _boilerplate;
+                var _fragment = document.createDocumentFragment();
+
+                return {
+                    addNewNode: function (className, mainAttrs, style) {
+                        var newNode = _boilerplate.cloneNode(true);
+                        newNode.className = className;
+                        this.applyCss(newNode, style);
+                        this.setGeneralAttributes(newNode, mainAttrs);
+                        _fragment.appendChild(newNode);
+                    },
+                    appendFragment: function (target) {
+                        target.appendChild(_fragment);
+                    },
+                    setBoilerplate: function (tagName) {
+                        _boilerplate = document.createElement(tagName);
+                    },
+                    applyCss: function (node, styles) {
+                        Object.keys(styles).forEach(function (styleItem) {
+                            node.style[styleItem] = styles[styleItem];
+                        });
+                    },
+                    setGeneralAttributes: function (node, mainAttrs) {
+                        Object.keys(mainAttrs).forEach(function (key) {
+                            node.setAttribute(key, mainAttrs[key]);
+                        });
+                    }
+
+                }
+            })();
+
+            var body = document.body;
+            DomHelper.setBoilerplate("div");
+
+            for (var x = 0, bodyWidth = body.clientWidth; x < bodyWidth; x += 60) {
+                for (var y = 0, bodyHeight = body.clientHeight; y < bodyHeight; y += 60) {
+
+                    var mainAttrs = {
+                        "data-x": x + "",
+                        "data-y": y + ""
+                    };
+                    var style = {
+                        "top": y + "px",
+                        "left": x + "px"
+                    };
+
+                    DomHelper.addNewNode('circle-shadow', mainAttrs, style);
+                    DomHelper.addNewNode('circle', mainAttrs, style);
+                }
+            }
+            DomHelper.appendFragment(body);
+
+            window.onmousemove = function (evt) {
+                var circles = document.getElementsByClassName("circle");
+                var arr = [].slice.call(circles);
+
+                arr.forEach(function (circle, i) {
+                    var x = +circle.getAttribute("data-x"),
+                        y = +circle.getAttribute("data-y"),
+                        width = +circle.offsetWidth;
+
+                    var x0 = x + width / 2,
+                        y0 = y + width / 2,
+                        dx = evt.clientX - x0,
+                        dy = evt.clientY - y0;
+
+                    circle.classList.remove("transition");
+
+                    return setTimeout(function () {
+                        return Math.sqrt(dx * dx + dy * dy) < width
+                            ?
+                            (function () {
+                                DomHelper.applyCss(circle, {
+                                    left: x0 - dx - width / 2 + "px",
+                                    top: y0 - dy - width / 2 + "px"
+                                });
+                            })()
+                            :
+                            (function () {
+                                circle.classList.add("transition");
+                                DomHelper.applyCss(circle, {
+                                    left: x0 - width / 2 + "px",
+                                    top: y0 - width / 2 + "px"
+                                });
+                            })();
+                    }, i);
+                });
+            };
+
+        </script>
+    </body>
+</html>
